@@ -1,4 +1,11 @@
-module sync_fifo_tb ();
+`timescale 1ns/1ns
+
+module sync_fifo_tb 
+#(
+	parameter FIFO_DEPTH = 8,
+	parameter DATA_WIDTH =  32,
+	parameter WIDTH      = 8
+) ();
 
 logic                  i_clk            ;
 logic                  i_rst_n          ;
@@ -17,9 +24,9 @@ wire  [DATA_WIDTH-1:0] o_dataout        ;
 
 
 sync_fifo #(
-	.FIFO_DEPTH (8)
-	.DATA_WIDTH (32)
-	.WIDTH      (8)
+	.FIFO_DEPTH (FIFO_DEPTH),
+	.DATA_WIDTH (DATA_WIDTH),
+	.WIDTH      (WIDTH)
 ) DUT (
 	.i_clk            (i_clk            ),
 	.i_rst_n          (i_rst_n          ),
@@ -47,11 +54,30 @@ initial begin
 	i_almostempty_lvl = 2;
 	i_almostfull_lvl  = 5;
 	i_datain          = 0;
-	repeat(5) begin 
+	@(negedge i_clk);
+	i_rst_n = 1;
+	i_datain = $random();
+	i_valid_s = 1;
+	@(negedge i_clk);
+	i_valid_s = 0;
+	@(negedge i_clk);
+	i_datain = $random();
+	i_valid_s = 1;
+	repeat(10) begin
 		@(negedge i_clk);
 		i_datain = $random();
 		i_valid_s = 1;
 	end
+	i_valid_s = 0;
+	repeat(10) begin
+		@(negedge i_clk);
+		i_ready_m = 1;
+	end
+	i_ready_m = 0;
+	repeat(10) begin
+		@(negedge i_clk);
+	end
+	$stop();
 end
 
 endmodule

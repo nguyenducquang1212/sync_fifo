@@ -24,16 +24,16 @@ logic [DATA_WIDTH-1:0] fifo [FIFO_DEPTH-1:0];
 logic [WIDTH-1:0] ptr;
 
 assign o_dataout = fifo[0];
-assign o_almostfull = (ptr == (i_almostfull_lvl-1));
-assign o_full       = (ptr == (FIFO_DEPTH-1));
+assign o_almostfull = (ptr >= i_almostfull_lvl);
+assign o_full       = (ptr == FIFO_DEPTH);
 assign o_valid_m    = !o_full;
-assign o_empty      = (!|ptr);
+assign o_empty      = (!(|ptr));
 assign o_ready_s    = !o_empty;
-assign o_almostempty= (ptr == (i_almostempty_lvl-1));
+assign o_almostempty= (ptr <= i_almostempty_lvl);
 
 always_ff @(posedge i_clk or negedge i_rst_n) begin
 	if(~i_rst_n) begin
-		ptr <= {WIDTH{1'b0}};
+		ptr <= 0;
 	end else begin
 		case ({i_ready_m, i_valid_s})
 			2'b01: begin
