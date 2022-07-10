@@ -37,20 +37,10 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
 	end else begin
 		case ({i_ready_m, i_valid_s})
 			2'b01: begin
-				if (o_full) begin
-					ptr <= ptr;
-				end
-				else begin 
-					ptr <= ptr + 1;
-				end
+				ptr <= o_full ? ptr : ptr + 1;
 			end
 			2'b10: begin 
-				if (o_empty) begin
-					ptr <= ptr;
-				end
-				else begin 
-					ptr <= ptr - 1;
-				end
+				ptr <= o_empty ? ptr : ptr - 1;
 			end
 			default: begin 
 				ptr <= ptr;
@@ -72,13 +62,13 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
 				end
 			end
 			2'b10: begin 
-				if (o_ready_s) begin
-					for (int i = 0; i < FIFO_DEPTH-1; i++) begin
-						fifo[i] <= fifo[i+1];
-					end
-				end
+				fifo[FIFO_DEPTH-1] <= {DATA_WIDTH{1'b0}};
+				for (int i = 0; i < FIFO_DEPTH-1; i++) begin
+					fifo[i] <= fifo[i+1];
+				end				
 			end
 			2'b11: begin 
+				fifo[FIFO_DEPTH-1] <= o_full ? i_datain : {DATA_WIDTH{1'b0}};
 				for (int i = 0; i < FIFO_DEPTH-1; i++) begin
 					if (i == ptr) begin
 						fifo[i] <= i_datain;
