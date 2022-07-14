@@ -69,8 +69,9 @@ always_ff @(posedge i_clk or negedge i_rst_n) begin
 			end
 			2'b11: begin 
 				fifo[FIFO_DEPTH-1] <= o_full ? i_datain : {DATA_WIDTH{1'b0}};
-				for (int i = 0; i < FIFO_DEPTH-1; i++) begin
-					if (i == ptr) begin
+				fifo[0] <= o_empty ? i_datain : fifo[1];
+				for (int i = 1; i < FIFO_DEPTH-1; i++) begin
+					if (i == (ptr-1)) begin
 						fifo[i] <= i_datain;
 					end
 					else begin 
