@@ -120,6 +120,20 @@ initial begin
 	i_valid_s = 0;
 	i_ready_m = 0;
 
+	// Write -> read when FIFO is not full
+	repeat(10) begin
+		@(negedge i_clk);
+		i_datain = $random();
+		i_valid_s = 1;
+		i_ready_m = 0;
+		@(negedge i_clk);
+		i_valid_s = 0;
+		i_ready_m = 1;
+	end
+	@(negedge i_clk);
+	i_valid_s = 0;
+	i_ready_m = 0;
+
 	// Read data
 	repeat(2) begin
 		@(negedge i_clk);
