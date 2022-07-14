@@ -64,7 +64,7 @@ initial begin
 	i_datain = $random();
 	i_valid_s = 1;
 
-	// Write data
+	// Write to overflow
 	repeat(10) begin
 		@(negedge i_clk);
 		i_datain = $random();
@@ -73,7 +73,7 @@ initial begin
 	@(negedge i_clk);
 	i_valid_s = 0;
 
-	// Read data
+	// Read to empty
 	repeat(10) begin
 		@(negedge i_clk);
 		i_ready_m = 1;
@@ -90,7 +90,7 @@ initial begin
 	@(negedge i_clk);
 	i_valid_s = 0;
 
-	// Read and write simultaneously
+	// Read and write simultaneously when FIFO is full
 	repeat(10) begin
 		@(negedge i_clk);
 		i_datain = $random();
@@ -109,7 +109,7 @@ initial begin
 	@(negedge i_clk);
 	i_ready_m = 0;
 
-	// Read and write simultaneously
+	// Read and write simultaneously when FIFO is not full
 	repeat(10) begin
 		@(negedge i_clk);
 		i_datain = $random();
@@ -137,10 +137,25 @@ initial begin
 	@(negedge i_clk);
 	i_valid_s = 0;
 
+	// Read to empty
 	repeat(10) begin
+		i_ready_m = 1;
 		@(negedge i_clk);
 	end
-	$stop();
+	i_ready_m = 0;
+
+	// Read and write simultaneously when FIFO is empty
+	repeat(10) begin
+		@(negedge i_clk);
+		i_datain = $random();
+		i_valid_s = 1;
+		i_ready_m = 1;
+	end
+	@(negedge i_clk);
+	i_valid_s = 0;
+	i_ready_m = 0;
+
+	$finish();
 end
 
 endmodule
